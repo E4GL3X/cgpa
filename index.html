@@ -41,19 +41,15 @@
 </head>
 <body class="bg-gray-900 text-gray-200 min-h-screen flex flex-col items-center justify-center">
     <div class="container mx-auto p-6 max-w-4xl bg-gray-900 rounded-xl shadow-2xl transform hover:scale-102 transition-transform duration-300">
-        <!-- Header -->
         <div class="gradient-header text-white p-6 rounded-t-xl">
             <h1 class="text-5xl font-extrabold tracking-tight">Grades in Your Hands.</h1>
             <p class="text-xl font-light mt-2">Only input what matters, skip the rest.</p>
         </div>
 
-        <!-- Content Area -->
         <div class="flex gap-6 mt-6">
-            <!-- Left: Semesters and Buttons -->
             <div class="flex-1">
                 <div id="semesters" class="bg-gray-800 p-6 rounded-xl glass-effect"></div>
 
-                <!-- Buttons -->
                 <div class="flex justify-between bg-gray-800 p-6 border-t border-gray-700 rounded-b-xl glass-effect mt-6">
                     <button id="add-semester" class="btn-primary text-white px-6 py-3 rounded-lg font-semibold transition duration-300 transform hover:scale-105 hover:shadow-lg">ADD SEMESTER</button>
                     <div class="flex space-x-4">
@@ -63,7 +59,6 @@
                 </div>
             </div>
 
-            <!-- Right: Result Box (Sticky) -->
             <div class="w-64 sticky top-4 self-start">
                 <div class="rounded-full p-5 text-center shadow-lg" style="background: linear-gradient(to right, #FFC900, #FF7D29);">
                     <h3 class="text-xl font-bold text-gray-900">Your GGPA</h3>
@@ -116,7 +111,6 @@
             const semesterDiv = document.getElementById(`semester-${semNum}`);
             semesterDiv.remove();
 
-            // Renumber remaining semesters
             const remainingSemesters = Array.from(document.querySelectorAll('[id^="semester-"]'))
                 .map(div => parseInt(div.id.split('-')[1]))
                 .filter(num => num > semNum)
@@ -173,12 +167,10 @@
             document.getElementById('gpa-value').textContent = '0.00';
         }
 
-        // Event Listeners
         document.getElementById('add-semester').addEventListener('click', addSemester);
         document.getElementById('calculate-gpa').addEventListener('click', calculateGPA);
         document.getElementById('clear-all').addEventListener('click', clearAll);
 
-        // Delegate event for delete semester
         document.getElementById('semesters').addEventListener('click', (e) => {
             if (e.target.classList.contains('delete-semester')) {
                 const semNum = parseInt(e.target.dataset.sem);
@@ -186,8 +178,7 @@
             }
         });
 
-        // Initial setup
-        addSemester(); // Start with Semester 1
+        addSemester();
     </script>
 </body>
 </html>
