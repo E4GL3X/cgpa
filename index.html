@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPA Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body{
+            font-family: 'Lato', sans-serif;
+        }
+        .gradient-header {
+            background: linear-gradient(to right, #433878, #7E60BF, #E4B1F0, #FFE1FF);
+        }
+        .btn-primary {
+            background-color: #7E60BF;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(to right, #E4B1F0, #FFE1FF);
+            color: #433878;
+        }
+        .btn-secondary {
+            background-color: #E4B1F0;
+        }
+        .btn-secondary:hover {
+            background-color: #FFE1FF;
+            color: #433878;
+        }
+        input:focus {
+            ring-color: #7E60BF;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 min-h-screen flex flex-col items-center justify-center">
+    <div class="container mx-auto p-6 max-w-4xl bg-gray-900 rounded-xl shadow-2xl transform hover:scale-102 transition-transform duration-300">
+        <!-- Header -->
+        <div class="gradient-header text-white p-6 rounded-t-xl">
+            <h1 class="text-5xl font-extrabold tracking-tight">Grades in Your Hands.</h1>
+            <p class="text-xl font-light mt-2">Only input what matters, skip the rest.</p>
+        </div>
+
+        <!-- Content Area -->
+        <div class="flex gap-6 mt-6">
+            <!-- Left: Semesters and Buttons -->
+            <div class="flex-1">
+                <div id="semesters" class="bg-gray-800 p-6 rounded-xl glass-effect"></div>
+
+                <!-- Buttons -->
+                <div class="flex justify-between bg-gray-800 p-6 border-t border-gray-700 rounded-b-xl glass-effect mt-6">
+                    <button id="add-semester" class="btn-primary text-white px-6 py-3 rounded-lg font-semibold transition duration-300 transform hover:scale-105 hover:shadow-lg">ADD SEMESTER</button>
+                    <div class="flex space-x-4">
+                        <button id="clear-all" class="btn-secondary text-[#433878] px-6 py-3 rounded-lg font-semibold transition duration-300 transform hover:scale-105 hover:shadow-lg">CLEAR ALL</button>
+                        <button id="calculate-gpa" class="btn-primary text-white px-6 py-3 rounded-lg font-semibold transition duration-300 transform hover:scale-105 hover:shadow-lg">CALCULATE CGPA</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Result Box (Sticky) -->
+            <div class="w-64 sticky top-4 self-start">
+                <div class="rounded-full p-5 text-center shadow-lg" style="background: linear-gradient(to right, #FFC900, #FF7D29);">
+                    <h3 class="text-xl font-bold text-gray-900">Your GGPA</h3>
+                    <div class="text-5xl font-extrabold text-gray-900" id="gpa-value">0.00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-8 text-gray-400">
+        Developed by <a href="https://github.com/e4GL3X" class="text-blue-400 hover:underline">E4GL3</a>.  All rights reserved.
+    </footer>
+
+    <script>
+        let semesterCount = 0;
+
+        function addSemester() {
+            if (semesterCount >= 15) {
+                alert('Maximum of 15 semesters allowed.');
+                return;
+            }
+            semesterCount++;
+            renderSemester(semesterCount);
+        }
+
+        function renderSemester(semNum) {
+            const semesterDiv = document.createElement('div');
+            semesterDiv.className = 'mb-6 relative';
+            semesterDiv.id = `semester-${semNum}`;
+            semesterDiv.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-100">SEMESTER ${semNum}</h2>
+                    <button class="delete-semester text-red-500 hover:text-red-700" data-sem="${semNum}">✕</button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 font-semibold bg-gray-700 p-4 rounded-t-lg glass-effect">
+                    <div class="text-gray-300">Credits</div>
+                    <div class="text-gray-300">Grade</div>
+                </div>
+                <div id="courses-${semNum}" class="grid gap-4">
+                    <div class="grid grid-cols-2 gap-4 items-center bg-gray-800 p-4 border-b border-gray-600 rounded-b-lg glass-effect">
+                        <input type="number" step="0.01" placeholder="Total Credits" class="border border-gray-600 bg-gray-700 text-white p-2 rounded-lg focus:ring-2 focus:ring-[#7E60BF] transition duration-200 w-full">
+                        <input type="number" step="0.01" min="0" max="4" placeholder="Semester GPA" class="border border-gray-600 bg-gray-700 text-white p-2 rounded-lg focus:ring-2 focus:ring-[#7E60BF] transition duration-200 w-full">
+                    </div>
+                </div>
+            `;
+            document.getElementById('semesters').appendChild(semesterDiv);
+        }
+
+        function deleteSemester(semNum) {
+            const semesterDiv = document.getElementById(`semester-${semNum}`);
+            semesterDiv.remove();
+
+            // Renumber remaining semesters
+            const remainingSemesters = Array.from(document.querySelectorAll('[id^="semester-"]'))
+                .map(div => parseInt(div.id.split('-')[1]))
+                .filter(num => num > semNum)
+                .sort((a, b) => a - b);
+
+            remainingSemesters.forEach(oldNum => {
+                const newNum = oldNum - 1;
+                const oldDiv = document.getElementById(`semester-${oldNum}`);
+                oldDiv.id = `semester-${newNum}`;
+                oldDiv.querySelector('h2').textContent = `SEMESTER ${newNum}`;
+                oldDiv.querySelector('.delete-semester').dataset.sem = newNum;
+
+                const coursesDiv = document.getElementById(`courses-${oldNum}`);
+                coursesDiv.id = `courses-${newNum}`;
+            });
+
+            semesterCount--;
+        }
+
+        function calculateGPA() {
+            let totalPoints = 0;
+            let totalCredits = 0;
+            let hasError = false;
+
+            for (let i = 1; i <= semesterCount; i++) {
+                const coursesDiv = document.getElementById(`courses-${i}`);
+                if (!coursesDiv) continue;
+                const row = coursesDiv.children[0];
+                const credits = parseFloat(row.children[0].value) || 0;
+                const grade = parseFloat(row.children[1].value) || 0;
+
+                if (grade > 4) {
+                    hasError = true;
+                }
+
+                if (credits > 0 && grade >= 0 && grade <= 4) {
+                    totalPoints += grade * credits;
+                    totalCredits += credits;
+                }
+            }
+
+            if (hasError) {
+                alert('Error: Grade cannot be higher than 4.00');
+                return;
+            }
+
+            const gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
+            document.getElementById('gpa-value').textContent = gpa;
+        }
+
+        function clearAll() {
+            document.getElementById('semesters').innerHTML = '';
+            semesterCount = 0;
+            document.getElementById('gpa-value').textContent = '0.00';
+        }
+
+        // Event Listeners
+        document.getElementById('add-semester').addEventListener('click', addSemester);
+        document.getElementById('calculate-gpa').addEventListener('click', calculateGPA);
+        document.getElementById('clear-all').addEventListener('click', clearAll);
+
+        // Delegate event for delete semester
+        document.getElementById('semesters').addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-semester')) {
+                const semNum = parseInt(e.target.dataset.sem);
+                deleteSemester(semNum);
+            }
+        });
+
+        // Initial setup
+        addSemester(); // Start with Semester 1
+    </script>
+</body>
+</html>
